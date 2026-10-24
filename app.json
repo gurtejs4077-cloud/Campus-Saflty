@@ -1,0 +1,53 @@
+{
+  "expo": {
+    "name": "girls-safety-app",
+    "slug": "girls-safety-app",
+    "version": "1.0.0",
+    "scheme": "girls-safety",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.girlssafety.app",
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "audio",
+          "location",
+          "fetch"
+        ],
+        "NSMicrophoneUsageDescription": "Continuously monitors distress audio, screams, and cries for help in the background when the Smart Guardian is armed.",
+        "NSLocationWhenInUseUsageDescription": "Transmits your precise campus coordinates to university security and guardians during an active emergency.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Broadcasts your live GPS escort route and alerts security even when your iPhone screen is locked in your pocket.",
+        "NSMotionUsageDescription": "Detects high-impact falls and sudden drops to automatically trigger safety alerts."
+      }
+    },
+    "android": {
+      "package": "com.girlssafety.app",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_BACKGROUND_LOCATION",
+        "android.permission.HIGH_SAMPLING_RATE_SENSORS",
+        "android.permission.VIBRATE",
+        "android.permission.WAKE_LOCK"
+      ],
+      "adaptiveIcon": {
+        "backgroundColor": "#131211",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "7e34f025-8eb1-42d7-8a03-17e5d4578d28"
+      }
+    }
+  }
+}
