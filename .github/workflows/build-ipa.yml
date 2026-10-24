@@ -19,43 +19,48 @@ jobs:
         run: npm install
 
       - name: 🚀 Expo Prebuild (Generate iOS Native Project)
-        run: npx expo prebuild --platform ios --clean
+        run: npx expo prebuild --platform ios --no-install
 
       - name: 🥥 Install CocoaPods
         run: |
           cd ios
           pod install
 
-      - name: 🛠️ Build iOS App (Unsigned for Sideloading)
+      - name: 🛠️ Build iOS Archive (Unsigned)
         run: |
           cd ios
-          WORKSPACE=$(ls -d *.xcworkspace | head -n 1)
-          SCHEME=$(xcodebuild -list -json | node -e '
-            const fs = require("fs");
-            const data = JSON.parse(fs.readFileSync(0, "utf-8"));
-            const s = (data.workspace?.schemes || data.project?.schemes || []).find(x => !x.includes("Pods"));
-            console.log(s || data.workspace?.schemes?.[0] || "");
-          ')
-          echo "Using workspace: $WORKSPACE"
-          echo "Using scheme: $SCHEME"
+          WORKSPACE=$(ls -d *.xcworkspace 2>/dev/null | grep -v "Pods" | head -n 1)
+          if [ -z "$WORKSPACE" ]; then
+            echo "Error: No .xcworkspace found in ios directory"
+            ls -la
+            exit 1
+          fi
+          SCHEME="${WORKSPACE%.xcworkspace}"
+          echo "========================================"
+          echo "Building Workspace: $WORKSPACE"
+          echo "Target Scheme:      $SCHEME"
+          echo "========================================"
 
-          xcodebuild -workspace "$WORKSPACE" \
+          xcodebuild \
+            -workspace "$WORKSPACE" \
             -scheme "$SCHEME" \
             -configuration Release \
             -destination 'generic/platform=iOS' \
-            -derivedDataPath build \
+            -archivePath build/App.xcarchive \
+            archive \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
             PROVISIONING_PROFILE="" \
-            clean build
+            COMPILER_INDEX_STORE_ENABLE=NO
 
       - name: 📦 Package into .ipa
         run: |
           cd ios
           mkdir -p Payload
-          cp -r build/Build/Products/Release-iphoneos/*.app Payload/
+          cp -r build/App.xcarchive/Products/Applications/*.app Payload/
           zip -r -q GirlsSafety.ipa Payload
+          echo "IPA Created Successfully:"
           ls -lh GirlsSafety.ipa
 
       - name: ⬇️ Upload IPA Artifact
