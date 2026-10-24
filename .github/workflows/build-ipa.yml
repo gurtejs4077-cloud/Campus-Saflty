@@ -68,6 +68,7 @@ jobs:
           cd ios
           export NODE_BINARY=$(which node)
           export PATH="$PATH:$(dirname $NODE_BINARY)"
+          mkdir -p "$PWD/build"
 
           WORKSPACE=$(ls -d *.xcworkspace 2>/dev/null | grep -v "Pods" | head -n 1)
           if [ -z "$WORKSPACE" ]; then
@@ -83,6 +84,7 @@ jobs:
           echo "Node Binary:        $NODE_BINARY"
           echo "=========================================="
 
+          set -o pipefail
           xcodebuild archive \
             -workspace "$WORKSPACE" \
             -scheme "$SCHEME" \
@@ -96,7 +98,12 @@ jobs:
             PROVISIONING_PROFILE="" \
             PROVISIONING_PROFILE_SPECIFIER="" \
             DEVELOPMENT_TEAM="" \
-            COMPILER_INDEX_STORE_ENABLE=NO
+            COMPILER_INDEX_STORE_ENABLE=NO \
+            2>&1 | tee xcodebuild.log || {
+              echo "❌❌❌ XCODEBUILD FAILED! EXACT COMPILER ERRORS:"
+              grep -E "(error:|fatal error:|\*\* ARCHIVE FAILED \*\*)" xcodebuild.log | tail -n 30 || tail -n 80 xcodebuild.log
+              exit 1
+            }
 
       - name: 📦 Package into .ipa
         run: |
