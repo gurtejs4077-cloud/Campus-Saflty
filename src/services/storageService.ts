@@ -93,13 +93,16 @@ export const INITIAL_INCIDENTS: IncidentRecord[] = [
 ];
 
 // Persistent contacts helper with local storage fallback
-const CONTACTS_STORAGE_KEY = 'girls_safety_contacts_v1';
+const CONTACTS_STORAGE_KEY = 'safe_route_plus_contacts_v1';
+const LEGACY_STORAGE_KEY = 'girls_safety_contacts_v1';
 
 export const storageService = {
   getStoredContacts: (): EmergencyContact[] => {
     try {
       if (typeof window !== 'undefined' && window.localStorage) {
-        const stored = window.localStorage.getItem(CONTACTS_STORAGE_KEY);
+        const stored =
+          window.localStorage.getItem(CONTACTS_STORAGE_KEY) ||
+          window.localStorage.getItem(LEGACY_STORAGE_KEY);
         if (stored) {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed) && parsed.length > 0) {

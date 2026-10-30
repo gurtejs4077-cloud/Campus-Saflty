@@ -56,7 +56,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     <View style={styles.container}>
       <Header
         title="Emergency Shield"
-        subtitle="PERSONAL SAFETY GUARDIAN"
+        subtitle="SAFE ROUTE PLUS"
         isArmed={isSensorArmed}
         onQuickAlertPress={handleSOSPress}
       />

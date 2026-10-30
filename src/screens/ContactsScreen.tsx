@@ -44,7 +44,7 @@ export const ContactsScreen: React.FC<ContactsScreenProps> = ({
     soundService.triggerHaptic('light');
     const cleaned = contact.phone.replace(/[^0-9+]/g, '');
     const msg = encodeURIComponent(
-      `EMERGENCY ALERT: I need urgent help! This is a distress alert from my Girls Safety App. Check my live GPS location.`
+      `EMERGENCY ALERT: I need urgent help! This is a distress alert from my Safe Route Plus app. Check my live GPS location.`
     );
     Linking.openURL(`sms:${cleaned}?body=${msg}`);
   };

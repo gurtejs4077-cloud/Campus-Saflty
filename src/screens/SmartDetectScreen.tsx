@@ -212,7 +212,7 @@ export const SmartDetectScreen: React.FC<SmartDetectScreenProps> = ({
               <Ionicons name="finger-print-outline" size={16} color={COLORS.primary} />
               <Text style={styles.bgFeatureText}>
                 <Text style={{ fontWeight: '800', color: COLORS.textPrimary }}>iOS Back Tap / Shortcuts: </Text>
-                Double-tap phone back to trigger deep link <Text style={{ color: COLORS.primaryLight, fontFamily: 'monospace' }}>girls-safety://sos</Text>.
+                Double-tap phone back to trigger deep link <Text style={{ color: COLORS.primaryLight, fontFamily: 'monospace' }}>safe-route-plus://sos</Text>.
               </Text>
             </View>
           </View>

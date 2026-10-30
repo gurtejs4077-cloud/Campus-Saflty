@@ -1,29 +1,29 @@
 {
   "expo": {
-    "name": "girls-safety-app",
-    "slug": "girls-safety-app",
+    "name": "Safe Route Plus",
+    "slug": "safe-route-plus",
     "version": "1.0.0",
-    "scheme": "girls-safety",
+    "scheme": "safe-route-plus",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.girlssafety.app",
+      "bundleIdentifier": "com.saferouteplus.app",
       "infoPlist": {
         "UIBackgroundModes": [
           "audio",
           "location",
           "fetch"
         ],
-        "NSMicrophoneUsageDescription": "Continuously monitors distress audio, screams, and cries for help in the background when the Smart Guardian is armed.",
-        "NSLocationWhenInUseUsageDescription": "Transmits your precise campus coordinates to university security and guardians during an active emergency.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "Broadcasts your live GPS escort route and alerts security even when your iPhone screen is locked in your pocket.",
+        "NSMicrophoneUsageDescription": "Continuously monitors distress audio, screams, and cries for help in the background when Safe Route Plus is armed.",
+        "NSLocationWhenInUseUsageDescription": "Transmits your precise coordinates to emergency contacts and guardians during an active emergency.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Broadcasts your live GPS escort route and alerts emergency contacts even when your iPhone screen is locked in your pocket.",
         "NSMotionUsageDescription": "Detects high-impact falls and sudden drops to automatically trigger safety alerts."
       }
     },
     "android": {
-      "package": "com.girlssafety.app",
+      "package": "com.saferouteplus.app",
       "permissions": [
         "android.permission.RECORD_AUDIO",
         "android.permission.ACCESS_FINE_LOCATION",

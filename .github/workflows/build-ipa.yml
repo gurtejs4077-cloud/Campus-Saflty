@@ -5,12 +5,12 @@ on:
 
 jobs:
   build:
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - name: 📱 Checkout repository
         uses: actions/checkout@v4
 
-      - name: 🍏 Select Xcode 16 (Required for React Native 0.86+)
+      - name: 🍏 Select Xcode
         run: |
           echo "Available Xcode installations on runner:"
           ls -d /Applications/Xcode* || true
@@ -23,15 +23,62 @@ jobs:
           echo "DEVELOPER_DIR=$XCODE_APP/Contents/Developer" >> $GITHUB_ENV
           echo "Active Xcode Version:"
           xcodebuild -version
+          echo "Active Swift Version:"
+          swift --version
 
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: npm
+          node-version: 22
 
       - name: 📦 Install dependencies
         run: npm install
+
+      - name: 🩹 Patch and Pre-resolve Expo SPM Dependencies
+        run: |
+          # 1. Remove -disableAutomaticPackageResolution and -quiet from build-xcframework.sh
+          node -e '
+            const fs = require("fs");
+            const scriptPath = "node_modules/expo-modules-jsi/apple/scripts/build-xcframework.sh";
+            if (fs.existsSync(scriptPath)) {
+              let s = fs.readFileSync(scriptPath, "utf8");
+              s = s.replace(/-disableAutomaticPackageResolution/g, "");
+              s = s.replace(/-quiet/g, "");
+              fs.writeFileSync(scriptPath, s);
+              console.log("Patched build-xcframework.sh: removed -disableAutomaticPackageResolution and -quiet");
+            }
+          '
+
+          # 2. Check Swift version and adjust Package.swift if needed
+          SWIFT_MAJOR_MINOR=$(swift --version | grep -oE "Swift version [0-9]+\.[0-9]+" | awk '{print $3}')
+          echo "Active Swift Version: $SWIFT_MAJOR_MINOR"
+          node -e '
+            const fs = require("fs");
+            const files = [
+              "node_modules/@expo/expo-modules-macros-plugin/apple/Package.swift",
+              "node_modules/expo-modules-jsi/apple/Package.swift"
+            ];
+            const swiftVer = "'"$SWIFT_MAJOR_MINOR"'";
+            console.log("Checking Package.swift files for Swift " + swiftVer);
+            for (const p of files) {
+              if (fs.existsSync(p)) {
+                let s = fs.readFileSync(p, "utf8");
+                if (parseFloat(swiftVer) < 6.2) {
+                  s = s.replace(/swift-tools-version:\s*6\.2/g, "swift-tools-version: 6.0");
+                  fs.writeFileSync(p, s);
+                  console.log("Downgraded " + p + " to swift-tools-version: 6.0");
+                }
+              }
+            }
+          '
+
+          # 3. Pre-resolve SPM dependencies
+          for dir in "node_modules/expo-modules-jsi/apple" "node_modules/@expo/expo-modules-macros-plugin/apple"; do
+            if [ -f "$dir/Package.swift" ]; then
+              echo "Pre-resolving Swift packages in $dir..."
+              (cd "$dir" && swift package resolve || true)
+            fi
+          done
 
       - name: 🚀 Expo Prebuild (Generate iOS Native Project)
         run: npx expo prebuild --platform ios --no-install
@@ -131,7 +178,7 @@ jobs:
                 COMPILER_INDEX_STORE_ENABLE=NO \
                 2>&1 | tee -a xcodebuild.log || {
                   echo "❌❌❌ XCODEBUILD FAILED! EXACT COMPILER ERRORS:"
-                  grep -E "(error:|fatal error:|\*\* ARCHIVE FAILED \*\*|\*\* BUILD FAILED \*\*)" xcodebuild.log | tail -n 30 || tail -n 80 xcodebuild.log
+                  grep -E "(error:|fatal error:|\*\* ARCHIVE FAILED \*\*|\*\* BUILD FAILED \*\*)" xcodebuild.log | tail -n 50 || tail -n 100 xcodebuild.log
                   exit 1
                 }
             }
@@ -148,13 +195,13 @@ jobs:
           echo "Found app bundle: $APP_DIR"
           mkdir -p Payload
           cp -r "$APP_DIR" Payload/
-          zip -r -q GirlsSafety.ipa Payload
+          zip -r -q SafeRoutePlus.ipa Payload
           echo "Successfully created IPA:"
-          ls -lh GirlsSafety.ipa
+          ls -lh SafeRoutePlus.ipa
 
       - name: ⬇️ Upload IPA Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: GirlsSafety-iOS-IPA
-          path: ios/GirlsSafety.ipa
+          name: SafeRoutePlus-iOS-IPA
+          path: ios/SafeRoutePlus.ipa
           retention-days: 7
